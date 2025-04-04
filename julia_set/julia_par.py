@@ -8,8 +8,8 @@ from multiprocessing import Pool, TimeoutError
 from julia_curve import c_from_group
 
 # Update according to your group size and number (see TUWEL)
-GROUP_SIZE   = None
-GROUP_NUMBER = None
+GROUP_SIZE   = 3
+GROUP_NUMBER = 2
 
 # do not modify BENCHMARK_C
 BENCHMARK_C = complex(-0.2, -0.65)
@@ -40,8 +40,19 @@ def compute_julia_set_sequential(xmin, xmax, ymin, ymax, im_width, im_height, c)
 
 def compute_julia_in_parallel(size, xmin, xmax, ymin, ymax, patch, nprocs, c):
 
-    # replace the following code
-    # with a parallel version
+    pool = Pool(processorts=nprocs)
+    # assuming size (mod patch) = 0
+	for x in range(0, size, patch):
+		for y in range(0, size, patch):
+			task_list.append( (x, y, patch, meta_information) )
+	# meta information may contain offsets, original image size,
+	# original boundaries of complex plane, etc.
+	create Pool with nprocs workers
+	# make sure that each task in the task_list is handled alone
+	# in multiprocessing.Pool.map, we need to specify chunksize=1
+	completed_patches = Pool.map(compute_patch, task_list, 1)
+    for p in completed_patches:
+    copy subimage of p to correct final position
     julia_img = compute_julia_set_sequential(xmin, xmax, ymin, ymax, size, size, c)
 
     return julia_img
