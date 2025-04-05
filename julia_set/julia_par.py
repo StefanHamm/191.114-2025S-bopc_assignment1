@@ -42,7 +42,7 @@ def compute_julia_set_sequential(xmin, xmax, ymin, ymax, im_width, im_height, c)
 
 def compute_julia_in_parallel(size, xmin, xmax, ymin, ymax, patch, nprocs, c):
 
-    pool = Pool(processors=nprocs)
+    # pool = Pool(processors=nprocs)
     # # assuming size (mod patch) = 0
     #    for x in range(0, size, patch):
     #         for y in range(0, size, patch):
