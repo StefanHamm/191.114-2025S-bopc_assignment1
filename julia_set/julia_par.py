@@ -54,7 +54,7 @@ def compute_julia_in_parallel(size, x_min, x_max, y_min, y_max, patch, n_procs, 
     tasks = []
     for x_start in range(0, size, patch):
         for y_start in range(0, size, patch):
-
+            # in case of size % pach != 0
             x_end = min(x_start + patch, size)
             y_end = min(y_start + patch, size)
 
@@ -64,6 +64,7 @@ def compute_julia_in_parallel(size, x_min, x_max, y_min, y_max, patch, n_procs, 
             x_width = x_max - x_min
             y_height = y_max - y_min
 
+            # rectangle in complex plain
             patch_x_min = x_min + (x_start / size) * x_width
             patch_x_max = x_min + (x_end / size) * x_width
             patch_y_min = y_min + (y_start / size) * y_height
@@ -92,8 +93,8 @@ if __name__ == "__main__":
     parser.add_argument("--xmax", help="", type=float, default=1.5)
     parser.add_argument("--ymin", help="", type=float, default=-1.5)
     parser.add_argument("--ymax", help="", type=float, default=1.5)
-    parser.add_argument("--group-size", help="", type=int, default=None)
-    parser.add_argument("--group-number", help="", type=int, default=None)
+    parser.add_argument("--group-size", help="", type=int, default=3)
+    parser.add_argument("--group-number", help="", type=int, default=2)
     parser.add_argument(
         "--patch", help="patch size in pixels (square images)", type=int, default=20)
     parser.add_argument(
