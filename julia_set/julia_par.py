@@ -40,23 +40,45 @@ def compute_julia_set_sequential(xmin, xmax, ymin, ymax, im_width, im_height, c)
     return julia
 
 
-def compute_julia_in_parallel(size, xmin, xmax, ymin, ymax, patch, nprocs, c):
+def compute_single_patch(args):
+    x_start, y_start, patch_width, patch_height, patch_xmin, patch_xmax, patch_ymin, patch_ymax, c = args
+    patch = compute_julia_set_sequential(
+        patch_xmin, patch_xmax, patch_ymin, patch_ymax,
+        patch_width, patch_height, c
+    )
+    return (x_start, y_start, patch)
 
-    # pool = Pool(processors=nprocs)
-    # # assuming size (mod patch) = 0
-    #    for x in range(0, size, patch):
-    #         for y in range(0, size, patch):
-    #             task_list.append((x, y, patch, meta_information))
-    #     # meta information may contain offsets, original image size,
-    #     # original boundaries of complex plane, etc.
-    #     create Pool with nprocs workers
-    #     # make sure that each task in the task_list is handled alone
-    #     # in multiprocessing.Pool.map, we need to specify chunksize=1
-    #     completed_patches = Pool.map(compute_patch, task_list, 1)
-    # for p in completed_patches:
-    # copy subimage of p to correct final position
-    julia_img = compute_julia_set_sequential(
-        xmin, xmax, ymin, ymax, size, size, c)
+
+def compute_julia_in_parallel(size, x_min, x_max, y_min, y_max, patch, n_procs, c):
+    julia_img = np.zeros((size, size))
+    tasks = []
+    for x_start in range(0, size, patch):
+        for y_start in range(0, size, patch):
+
+            x_end = min(x_start + patch, size)
+            y_end = min(y_start + patch, size)
+
+            patch_width = x_end - x_start
+            patch_height = y_end - y_start
+
+            x_width = x_max - x_min
+            y_height = y_max - y_min
+
+            patch_x_min = x_min + (x_start / size) * x_width
+            patch_x_max = x_min + (x_end / size) * x_width
+            patch_y_min = y_min + (y_start / size) * y_height
+            patch_y_max = y_min + (y_end / size) * y_height
+
+            tasks.append((x_start, y_start, patch_width, patch_height,
+                          patch_x_min, patch_x_max, patch_y_min, patch_y_max, c))
+
+    with Pool(processes=n_procs) as pool:
+        results = pool.map(compute_single_patch, tasks)
+
+        for x_start, y_start, patch_data in results:
+            patch_height, patch_width = patch_data.shape
+            julia_img[x_start:x_start+patch_height,
+                      y_start:y_start+patch_width] = patch_data
 
     return julia_img
 
