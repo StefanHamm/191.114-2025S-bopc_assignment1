@@ -13,6 +13,7 @@ repetitions = 3
 
 # Store results
 results = []
+srun_precommand = "srun -p q_student -t 1 -N 1 -c 32"
 
 print("Starting scalability analysis...")
 print("Problem size | Processors | Mean runtime (s) | Speedup | Efficiency")
@@ -23,7 +24,7 @@ for size in problem_sizes:
     sequential_runtimes = []
 
     for _ in range(repetitions):
-        cmd = f"python julia_set.py --size {size} --nprocs 1 --patch {patch_size} --benchmark"
+        cmd = f"{srun_precommand} python3 julia_set/julia_par.py --size {size} --nprocs 1 --patch {patch_size} --benchmark"
         output = subprocess.check_output(cmd, shell=True, text=True)
         _, _, _, runtime_str = output.strip().split(';')
         sequential_runtimes.append(float(runtime_str))
@@ -35,7 +36,7 @@ for size in problem_sizes:
         runtimes = []
 
         for _ in range(repetitions):
-            cmd = f"python julia_set.py --size {size} --nprocs {nprocs} --patch {patch_size} --benchmark"
+            cmd = f"{srun_precommand} python3 julia_set/julia_par.py --size {size} --nprocs {nprocs} --patch {patch_size} --benchmark"
             output = subprocess.check_output(cmd, shell=True, text=True)
             _, _, _, runtime_str = output.strip().split(';')
             runtimes.append(float(runtime_str))
